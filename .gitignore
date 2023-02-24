@@ -26,3 +26,9 @@ ormconfig.json
 # Local
 *.local.*
 *.local
+
+# Dotenv
+.env
+
+# Fly files
+fly.*

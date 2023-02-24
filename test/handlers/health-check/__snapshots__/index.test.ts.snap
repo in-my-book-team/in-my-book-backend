@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Handler - health-check - HTTP should return response 1`] = `
+{
+  "body": "ok",
+  "status": {
+    "code": 200,
+  },
+}
+`;

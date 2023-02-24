@@ -1,24 +1,23 @@
-import type { Server } from 'http';
-import cors from 'cors';
-import express from 'express';
+import startServer from './server';
 
-const startServer = (port = 3000): Promise<Server> => {
-  const app = express();
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
 
-  app.use(express.json());
-  app.options('*', cors());
+process.on('unhandledRejection', (reason: any) => {
+  console.error('Unhandled promise rejection', reason);
+});
 
-  return new Promise((resolve, reject) => {
-    try {
-      const server = app.listen(port, () => {
-        console.log(`Listening on port=${port}`);
-        resolve(server);
-      });
-    } catch (error: any) {
-      console.error(error.message);
-      reject(error);
-    }
-  });
-};
+process.on('uncaughtException', (err: Error) => {
+  console.error(`uncaughtException: ${err.message}`, err);
+  process.exit(1);
+});
 
-startServer(3000); // TODO: move port to .env
+const startApplication = async (): Promise<void> =>
+  startServer
+    .then(() => console.info('Application up and running'))
+    .catch((error) => {
+      console.error('Unable to run application', error);
+      process.exit(1);
+    });
+
+startApplication();
