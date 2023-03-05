@@ -1,4 +1,4 @@
-import startServer from './server';
+import startServer from './server/start';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -13,7 +13,7 @@ process.on('uncaughtException', (err: Error) => {
 });
 
 const startApplication = async (): Promise<void> =>
-  startServer
+  startServer()
     .then(() => console.info('Application up and running'))
     .catch((error) => {
       console.error('Unable to run application', error);

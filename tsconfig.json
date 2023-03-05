@@ -7,9 +7,7 @@
     "removeComments": true,
     "noImplicitAny": true,
     "outDir": "./dist",
-    "lib": [
-      "es2020"
-    ],
+    "lib": ["es2020"],
     "target": "es2020",
     "module": "commonjs",
     "sourceMap": true,
@@ -21,10 +19,8 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "noEmit": true,
+    "noEmit": true
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [] /* Exclude some local files when applicable */
 }
