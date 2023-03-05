@@ -1,7 +1,8 @@
 import { StatusCodes } from '../constants/status-codes';
 
-module.exports = class ApiError extends Error {
+class Exceptions extends Error {
   status;
+
   errors;
 
   constructor(status: number, message: string, errors = []) {
@@ -10,11 +11,13 @@ module.exports = class ApiError extends Error {
     this.errors = errors;
   }
 
-  static UnauthorizedError() {
-    return new ApiError(StatusCodes.UNAUTHORIZED, 'USER IS NOT UNAUTHORIZED');
+  static UnauthorizedError(): Exceptions {
+    return new Exceptions(StatusCodes.UNAUTHORIZED, 'USER IS NOT UNAUTHORIZED');
   }
 
-  static BadRequest(message: string, errors = []) {
-    return new ApiError(StatusCodes.BAD_REQUEST, message, errors);
+  static BadRequest(message: string, errors: any = []): Exceptions {
+    return new Exceptions(StatusCodes.BAD_REQUEST, message, errors);
   }
-};
+}
+
+export default Exceptions;

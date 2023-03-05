@@ -1,14 +1,33 @@
+import type { DeleteResult } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../db/entities/User';
+import Exceptions from '../../exceptions';
+import MailService from '../mail-service';
+import TokenService from '../token-service';
+import User from '../db/entities/User';
+import UserDto from '../../dtos/UserDto';
 import { myDataSource } from '../db/utils/getConnection';
-import { MailService } from '../mail-service';
-const TokenService = require('../token-service');
-const ApiError = require('../../exceptions/index');
-const UserDto = require('../../dtos/UserDto');
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
+
+type Result = {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: number;
+    nickname: string;
+    email: string;
+    isActivated: boolean;
+  };
+};
 
 class UserService {
-  async registration(nickname: string, email: string, password: string) {
+  static registration = async (
+    nickname: string,
+    email: string,
+    password: string,
+  ): Promise<Result> => {
     const candidate = await myDataSource
       .createQueryBuilder()
       .select('user')
@@ -17,7 +36,7 @@ class UserService {
       .getOne();
 
     if (candidate) {
-      throw ApiError.BadRequest(
+      throw Exceptions.BadRequest(
         `A user with '${email}' email address already exists`,
       );
     }
@@ -53,9 +72,9 @@ class UserService {
       ...tokens,
       user: userDto,
     };
-  }
+  };
 
-  async activate(activationLink: string) {
+  static activate = async (activationLink: string): Promise<void> => {
     const user = await myDataSource
       .createQueryBuilder()
       .select('user')
@@ -64,7 +83,7 @@ class UserService {
       .getOne();
 
     if (!user) {
-      throw ApiError.BadRequest('Incorrect activate link');
+      throw Exceptions.BadRequest('Incorrect activate link');
     }
 
     await myDataSource
@@ -75,9 +94,9 @@ class UserService {
       })
       .where('id = :id', { id: user.id })
       .execute();
-  }
+  };
 
-  async login(email: string, password: string) {
+  static login = async (email: string, password: string): Promise<Result> => {
     const user = await myDataSource
       .createQueryBuilder()
       .select('user')
@@ -86,13 +105,13 @@ class UserService {
       .getOne();
 
     if (!user) {
-      throw ApiError.BadRequest(
+      throw Exceptions.BadRequest(
         `A user with '${email}' email address not found`,
       );
     }
     const isPassEquals = await bcrypt.compare(password, user.password);
     if (!isPassEquals) {
-      throw ApiError.BadRequest('Incorrect password');
+      throw Exceptions.BadRequest('Incorrect password');
     }
     const userDto = new UserDto(user);
     const tokens = await TokenService.generateTokens({ ...userDto });
@@ -102,12 +121,12 @@ class UserService {
       ...tokens,
       user: userDto,
     };
-  }
+  };
 
-  async logout(refreshToken: string) {
+  static logout = async (refreshToken: string): Promise<DeleteResult> => {
     const token = await TokenService.removeToken(refreshToken);
     return token;
-  }
+  };
 }
 
-module.exports = new UserService();
+export default UserService;

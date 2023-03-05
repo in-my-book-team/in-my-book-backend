@@ -1,7 +1,10 @@
-module.exports = class UserDto {
+class UserDto {
   id;
+
   nickname;
+
   email;
+
   isActivated;
 
   constructor(model: any) {
@@ -10,4 +13,6 @@ module.exports = class UserDto {
     this.email = model.email;
     this.isActivated = model.isActivated;
   }
-};
+}
+
+export default UserDto;

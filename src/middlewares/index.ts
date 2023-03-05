@@ -1,16 +1,18 @@
 import type { NextFunction, Request, Response } from 'express';
-import { StatusCodes } from '../constants/status-codes';
+import Exceptions from '../exceptions/index';
 import { ExceptionCodes } from '../exceptions/exception-codes';
-const ApiError = require('../exceptions/index');
+import { StatusCodes } from '../constants/status-codes';
 
-module.exports = function (
-  err: { status: number; message: any; errors: any },
+/* eslint-disable */
+
+const middlewares = (
+  err: { status: number; message: string; errors: any },
   req: Request,
   res: Response,
   next: NextFunction,
-) {
+): Response<number, Record<string, any>> => {
   console.log(err);
-  if (err instanceof ApiError) {
+  if (err instanceof Exceptions) {
     return res
       .status(err.status)
       .json({ message: err.message, errors: err.errors });
@@ -19,3 +21,6 @@ module.exports = function (
     .status(StatusCodes.INTERNAL_SERVER_ERROR)
     .json({ message: ExceptionCodes.UNEXPECTED, errors: err.errors });
 };
+/* eslint-enable */
+
+export default middlewares;

@@ -5,10 +5,10 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from './User';
+import User from './User';
 
 @Entity()
-export class Token {
+class Token {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -19,3 +19,5 @@ export class Token {
   @JoinColumn()
   user!: User;
 }
+
+export default Token;

@@ -1,8 +1,5 @@
 import startServer from './server/start';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
-
 process.on('unhandledRejection', (reason: any) => {
   console.error('Unhandled promise rejection', reason);
 });

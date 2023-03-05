@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-export class MailService {
+class MailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
@@ -18,11 +18,11 @@ export class MailService {
     });
   }
 
-  async sendActivationMail(to: string, link: string) {
+  async sendActivationMail(to: string, link: string): Promise<void> {
     await this.transporter.sendMail({
       from: process.env.SMTP_USER,
       to,
-      subject: 'Activating account on ' + process.env.API_URL,
+      subject: `Activating account on ${process.env.API_URL}`,
       text: '',
       html: `
         <div>
@@ -33,3 +33,5 @@ export class MailService {
     });
   }
 }
+
+export default MailService;
