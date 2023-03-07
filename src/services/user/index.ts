@@ -7,6 +7,7 @@ import TokenService from '../token-service';
 import User from '../db/entities/User';
 import UserDto from '../../dtos/UserDto';
 import { myDataSource } from '../db/utils/getConnection';
+import BadRequest from '../../exceptions/bad-request';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -14,12 +15,7 @@ require('dotenv').config();
 type Result = {
   accessToken: string;
   refreshToken: string;
-  user: {
-    id: number;
-    nickname: string;
-    email: string;
-    isActivated: boolean;
-  };
+  user: UserDto;
 };
 
 class UserService {
@@ -36,9 +32,9 @@ class UserService {
       .getOne();
 
     if (candidate) {
-      throw Exceptions.BadRequest(
-        `A user with '${email}' email address already exists`,
-      );
+      throw new BadRequest({
+        message: `A user with '${email}' email address already exists`,
+      });
     }
     const hashPassword = await bcrypt.hash(password, 3);
     const activationLink = uuidv4();

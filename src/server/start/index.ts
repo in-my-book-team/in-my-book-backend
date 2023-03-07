@@ -1,10 +1,9 @@
 import type { Server } from 'http';
-import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import errorMiddleware from '../../middlewares';
+import express from 'express';
 import getConnection from '../../services/db/utils/getConnection';
-import router from '../routes';
+import routes from '../routes';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -16,8 +15,7 @@ const startServer = (): Promise<Server> => {
   app.use(cookieParser());
   app.use(express.json());
   app.options('*', cors);
-  app.use('/api', router);
-  app.use(errorMiddleware);
+  routes(app);
 
   return new Promise((resolve, reject) => {
     try {
