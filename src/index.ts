@@ -1,7 +1,4 @@
-import startServer from './server';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
+import startServer from './server/start';
 
 process.on('unhandledRejection', (reason: any) => {
   console.error('Unhandled promise rejection', reason);
@@ -13,7 +10,7 @@ process.on('uncaughtException', (err: Error) => {
 });
 
 const startApplication = async (): Promise<void> =>
-  startServer
+  startServer()
     .then(() => console.info('Application up and running'))
     .catch((error) => {
       console.error('Unable to run application', error);

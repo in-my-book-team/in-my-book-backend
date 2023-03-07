@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import Exception from '../exceptions';
 import { StatusCodes } from '../constants/status-codes';
 
 type HandlerEvent = {
@@ -10,12 +11,14 @@ type HandlerEvent = {
   path: string;
 };
 
-export type HandlerResponse = {
-  status: {
-    code: StatusCodes;
-  };
-  body: any;
-};
+export type HandlerResponse =
+  | {
+      status: {
+        code: StatusCodes;
+      };
+      body: any;
+    }
+  | Exception;
 
 const handleRequest =
   (handler: (request: HandlerEvent) => Promise<HandlerResponse>) =>
@@ -34,7 +37,12 @@ const handleRequest =
         ...request,
       });
 
-      res.status(response.status.code ?? StatusCodes.OK).send(response.body);
+      if (!(response instanceof Exception))
+        res.status(response.status.code ?? StatusCodes.OK).send(response.body);
+      else
+        res
+          .status(response.status.code ?? StatusCodes.INTERNAL_SERVER_ERROR)
+          .send(response.obj);
     } catch (error) {
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)

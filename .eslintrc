@@ -39,10 +39,7 @@
     "sort-imports": [
       "warn",
       {
-        "ignoreCase": false,
-        "ignoreDeclarationSort": false,
-        "ignoreMemberSort": false,
-        "allowSeparatedGroups": false
+        "ignoreDeclarationSort": true
       }
     ]
   }
