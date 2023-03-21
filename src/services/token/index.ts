@@ -1,6 +1,6 @@
 import type { DeleteResult } from 'typeorm';
 import jwt from 'jsonwebtoken';
-import { myDataSource } from '../db/utils/getConnection';
+import { dbInstanse } from '../db/utils/getConnection';
 import Token from '../db/entities/Token';
 import User from '../db/entities/User';
 
@@ -40,7 +40,7 @@ class TokenService {
     refreshToken: string,
   ): Promise<Token> => {
     const token = new Token();
-    const tokenData = await myDataSource
+    const tokenData = await dbInstanse
       .createQueryBuilder()
       .select('token')
       .from(Token, 'token')
@@ -49,10 +49,10 @@ class TokenService {
 
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
-      return myDataSource.manager.save(tokenData);
+      return dbInstanse.manager.save(tokenData);
     }
 
-    const user = await myDataSource
+    const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
       .from(User, 'user')
@@ -60,15 +60,15 @@ class TokenService {
       .getOne();
 
     token.refreshToken = refreshToken;
-    token.user = user!;
+    if (user) token.user = user;
 
-    await myDataSource.manager.save(token);
+    await dbInstanse.manager.save(token);
 
     return token;
   };
 
   static removeToken = async (refreshToken: string): Promise<DeleteResult> =>
-    myDataSource
+    dbInstanse
       .createQueryBuilder()
       .delete()
       .from(Token)

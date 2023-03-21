@@ -8,12 +8,11 @@ import UserService from '../../services/user';
 import BadRequest from '../../exceptions/bad-request';
 
 type Query = {
-  nickname: string;
   email: string;
   password: string;
 };
 
-const registrationHandler = async (
+const loginHandler = async (
   request: HandlerEvent,
 ): Promise<HandlerResponse> => {
   try {
@@ -22,8 +21,8 @@ const registrationHandler = async (
       return new BadRequest({ message: errors.array().join('\n') });
     }
 
-    const { nickname, email, password } = request.query as Query;
-    const userData = await UserService.registration(nickname, email, password);
+    const { email, password } = request.query as Query;
+    const userData = await UserService.login(email, password);
 
     return {
       status: {
@@ -41,4 +40,4 @@ const registrationHandler = async (
   }
 };
 
-export default registrationHandler;
+export default loginHandler;

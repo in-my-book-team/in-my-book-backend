@@ -1,11 +1,11 @@
 import { DataSource } from 'typeorm';
 import getConfig from './config';
 
-export const myDataSource = new DataSource(getConfig());
+export const dbInstanse = new DataSource(getConfig());
 
 const getConnection = (): void => {
   try {
-    myDataSource
+    dbInstanse
       .initialize()
       .then(() => {
         console.log('Data Source has been initialized!');

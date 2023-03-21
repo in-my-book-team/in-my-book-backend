@@ -1,12 +1,10 @@
-import type { DeleteResult } from 'typeorm';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import Exceptions from '../../exceptions';
-import MailService from '../mail-service';
-import TokenService from '../token-service';
+import MailService from '../mail';
+import TokenService from '../token';
 import User from '../db/entities/User';
 import UserDto from '../../dtos/UserDto';
-import { myDataSource } from '../db/utils/getConnection';
+import { dbInstanse } from '../db/utils/getConnection';
 import BadRequest from '../../exceptions/bad-request';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -24,7 +22,7 @@ class UserService {
     email: string,
     password: string,
   ): Promise<Result> => {
-    const candidate = await myDataSource
+    const candidate = await dbInstanse
       .createQueryBuilder()
       .select('user')
       .from(User, 'user')
@@ -39,7 +37,7 @@ class UserService {
     const hashPassword = await bcrypt.hash(password, 3);
     const activationLink = uuidv4();
 
-    const user = await myDataSource
+    const user = await dbInstanse
       .createQueryBuilder()
       .insert()
       .into(User)
@@ -71,7 +69,7 @@ class UserService {
   };
 
   static activate = async (activationLink: string): Promise<void> => {
-    const user = await myDataSource
+    const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
       .from(User, 'user')
@@ -79,10 +77,12 @@ class UserService {
       .getOne();
 
     if (!user) {
-      throw Exceptions.BadRequest('Incorrect activate link');
+      throw new BadRequest({
+        message: 'Incorrect activate link',
+      });
     }
 
-    await myDataSource
+    await dbInstanse
       .createQueryBuilder()
       .update(User)
       .set({
@@ -93,7 +93,7 @@ class UserService {
   };
 
   static login = async (email: string, password: string): Promise<Result> => {
-    const user = await myDataSource
+    const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
       .from(User, 'user')
@@ -101,13 +101,15 @@ class UserService {
       .getOne();
 
     if (!user) {
-      throw Exceptions.BadRequest(
-        `A user with '${email}' email address not found`,
-      );
+      throw new BadRequest({
+        message: `A user with '${email}' email address not found`,
+      });
     }
     const isPassEquals = await bcrypt.compare(password, user.password);
     if (!isPassEquals) {
-      throw Exceptions.BadRequest('Incorrect password');
+      throw new BadRequest({
+        message: 'Incorrect password',
+      });
     }
     const userDto = new UserDto(user);
     const tokens = await TokenService.generateTokens({ ...userDto });
@@ -119,9 +121,8 @@ class UserService {
     };
   };
 
-  static logout = async (refreshToken: string): Promise<DeleteResult> => {
-    const token = await TokenService.removeToken(refreshToken);
-    return token;
+  static logout = async (refreshToken: string): Promise<void> => {
+    await TokenService.removeToken(refreshToken);
   };
 }
 
