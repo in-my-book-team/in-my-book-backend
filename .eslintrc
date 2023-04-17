@@ -13,10 +13,7 @@
     "prettier"
   ],
   "parserOptions": {
-    "project": [
-      "./tsconfig.json",
-      "./test/tsconfig.json"
-    ]
+    "project": ["./tsconfig.json", "./test/tsconfig.json"]
   },
   "rules": {
     "prettier/prettier": "warn",
