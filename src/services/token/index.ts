@@ -1,49 +1,45 @@
 import type { DeleteResult } from 'typeorm';
 import jwt from 'jsonwebtoken';
 import { dbInstanse } from '../db/utils/getConnection';
-import Token from '../db/entities/Token';
-import User from '../db/entities/User';
+import TokenDB from '../db/entities/Token';
+import UserDB from '../db/entities/User';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-type GenerateTokens = {
-  accessToken: string;
-  refreshToken: string;
+type TokensType = {
+  tokens: {
+    access: string;
+    refresh: string;
+  };
 };
 
-class TokenService {
-  static generateTokens = async (payload: any): Promise<GenerateTokens> => {
-    const accessToken = jwt.sign(
-      payload,
-      String(process.env.JWT_ACCESS_SECRET),
-      {
-        expiresIn: '30m',
-      },
-    );
-    const refreshToken = jwt.sign(
-      payload,
-      String(process.env.JWT_REFRESH_SECRET),
-      {
-        expiresIn: '30d',
-      },
-    );
+class Tokens {
+  static generate = async (payload: any): Promise<TokensType> => {
+    const access = jwt.sign(payload, String(process.env.JWT_ACCESS_SECRET), {
+      expiresIn: '30m',
+    });
+    const refresh = jwt.sign(payload, String(process.env.JWT_REFRESH_SECRET), {
+      expiresIn: '30d',
+    });
 
     return {
-      accessToken,
-      refreshToken,
+      tokens: {
+        access,
+        refresh,
+      },
     };
   };
 
-  static saveToken = async (
+  static save = async (
     userId: number,
     refreshToken: string,
-  ): Promise<Token> => {
-    const token = new Token();
+  ): Promise<TokenDB> => {
+    const token = new TokenDB();
     const tokenData = await dbInstanse
       .createQueryBuilder()
       .select('token')
-      .from(Token, 'token')
+      .from(TokenDB, 'token')
       .where('token.userId = :userId', { userId })
       .getOne();
 
@@ -55,7 +51,7 @@ class TokenService {
     const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(User, 'user')
+      .from(UserDB, 'user')
       .where('user.id = :userId', { userId })
       .getOne();
 
@@ -67,13 +63,13 @@ class TokenService {
     return token;
   };
 
-  static removeToken = async (refreshToken: string): Promise<DeleteResult> =>
+  static remove = async (refreshToken: string): Promise<DeleteResult> =>
     dbInstanse
       .createQueryBuilder()
       .delete()
-      .from(Token)
+      .from(TokenDB)
       .where('refreshToken = :refreshToken', { refreshToken })
       .execute();
 }
 
-export default TokenService;
+export default Tokens;

@@ -30,7 +30,7 @@ const loginHandler = async (
       },
       body: userData,
       cookie: {
-        refreshToken: userData.refreshToken,
+        refreshToken: userData.tokens.refresh,
       },
     };
   } catch (error) {

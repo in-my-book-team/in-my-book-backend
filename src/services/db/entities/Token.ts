@@ -8,7 +8,7 @@ import {
 import User from './User';
 
 @Entity()
-class Token {
+class TokenDB {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -20,4 +20,4 @@ class Token {
   user!: User;
 }
 
-export default Token;
+export default TokenDB;

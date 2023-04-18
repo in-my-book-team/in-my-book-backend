@@ -1,9 +1,10 @@
 import nodemailer from 'nodemailer';
+import { mailHTML } from '../../models/mailHTML';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
-class MailService {
+class Mail {
   private transporter: nodemailer.Transporter;
 
   constructor() {
@@ -24,14 +25,9 @@ class MailService {
       to,
       subject: `Activating account on ${process.env.API_URL}`,
       text: '',
-      html: `
-        <div>
-          <h1>To activate follow the link</h1>
-          <a href="${link}">${link}</a>
-        </div>
-      `,
+      html: mailHTML(link),
     });
   }
 }
 
-export default MailService;
+export default Mail;

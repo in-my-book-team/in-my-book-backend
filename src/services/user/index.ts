@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import MailService from '../mail';
-import TokenService from '../token';
-import User from '../db/entities/User';
-import UserDto from '../../dtos/UserDto';
+import Mail from '../mail';
+import Tokens from '../token';
+import UserDB from '../db/entities/User';
+import UserModel from '../../models/user';
 import { dbInstanse } from '../db/utils/getConnection';
 import BadRequest from '../../exceptions/bad-request';
 
@@ -11,12 +11,14 @@ import BadRequest from '../../exceptions/bad-request';
 require('dotenv').config();
 
 type Result = {
-  accessToken: string;
-  refreshToken: string;
-  user: UserDto;
+  tokens: {
+    access: string;
+    refresh: string;
+  };
+  user: UserModel;
 };
 
-class UserService {
+class User {
   static registration = async (
     nickname: string,
     email: string,
@@ -25,7 +27,7 @@ class UserService {
     const candidate = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(User, 'user')
+      .from(UserDB, 'user')
       .where('user.email = :email', { email })
       .getOne();
 
@@ -52,19 +54,19 @@ class UserService {
       .returning(['id', 'nickname', 'email', 'isActivated'])
       .execute();
 
-    const userDto = new UserDto(user.raw[0]);
+    const userModel = new UserModel(user.raw[0]);
 
-    await new MailService().sendActivationMail(
+    await new Mail().sendActivationMail(
       email,
       `${process.env.API_URL}/api/activate/${activationLink}`,
     );
 
-    const tokens = await TokenService.generateTokens({ ...userDto });
-    await TokenService.saveToken(userDto.id, tokens.refreshToken);
+    const tokens = await Tokens.generate({ ...userModel });
+    await Tokens.save(userModel.id, tokens.tokens.refresh);
 
     return {
       ...tokens,
-      user: userDto,
+      user: userModel,
     };
   };
 
@@ -72,7 +74,7 @@ class UserService {
     const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(User, 'user')
+      .from(UserDB, 'user')
       .where('user.activationLink = :activationLink', { activationLink })
       .getOne();
 
@@ -96,7 +98,7 @@ class UserService {
     const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(User, 'user')
+      .from(UserDB, 'user')
       .where('user.email = :email', { email })
       .getOne();
 
@@ -111,19 +113,19 @@ class UserService {
         message: 'Incorrect password',
       });
     }
-    const userDto = new UserDto(user);
-    const tokens = await TokenService.generateTokens({ ...userDto });
-    await TokenService.saveToken(userDto.id, tokens.refreshToken);
+    const userModel = new UserModel(user);
+    const tokens = await Tokens.generate({ ...userModel });
+    await Tokens.save(userModel.id, tokens.tokens.refresh);
 
     return {
       ...tokens,
-      user: userDto,
+      user: userModel,
     };
   };
 
   static logout = async (refreshToken: string): Promise<void> => {
-    await TokenService.removeToken(refreshToken);
+    await Tokens.remove(refreshToken);
   };
 }
 
-export default UserService;
+export default User;

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-class User {
+class UserDB {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -14,11 +14,11 @@ class User {
   @Column({ nullable: false, type: 'varchar' })
   password!: string;
 
-  @Column({ nullable: false, type: 'varchar', default: false })
+  @Column({ nullable: false, default: false })
   isActivated!: boolean;
 
   @Column({ type: 'varchar' })
   activationLink!: string;
 }
 
-export default User;
+export default UserDB;

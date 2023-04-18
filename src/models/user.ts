@@ -1,4 +1,4 @@
-class UserDto {
+class UserModel {
   id;
 
   nickname;
@@ -15,4 +15,4 @@ class UserDto {
   }
 }
 
-export default UserDto;
+export default UserModel;
