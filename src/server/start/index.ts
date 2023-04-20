@@ -4,7 +4,7 @@ import cors from 'cors';
 
 const startServer = (
   routes: (app: Application) => void,
-  port = 5000,
+  port = 8080,
 ): Promise<Server> => {
   const app = express();
 
