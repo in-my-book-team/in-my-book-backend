@@ -1,9 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-class UserDB {
-  @PrimaryGeneratedColumn()
-  id!: number;
+class User {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
   @Column({ nullable: false, type: 'varchar' })
   nickname!: string;
@@ -14,11 +14,11 @@ class UserDB {
   @Column({ nullable: false, type: 'varchar' })
   password!: string;
 
-  @Column({ nullable: false, default: false })
+  @Column({ nullable: false, default: false, type: 'boolean' })
   isActivated!: boolean;
 
   @Column({ type: 'varchar' })
   activationLink!: string;
 }
 
-export default UserDB;
+export default User;

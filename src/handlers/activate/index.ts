@@ -3,27 +3,28 @@ import type {
   HandlerResponse,
 } from '../../server/request-handler';
 import { StatusCodes } from '../../constants/status-codes';
-import UserService from '../../services/user';
-import BadRequest from '../../exceptions/bad-request';
+import handler from './handler';
 
-const activateLinkHandler = async (
-  request: HandlerEvent,
-): Promise<HandlerResponse> => {
-  try {
-    const activationLink = request.params.link;
-    await UserService.activate(activationLink);
-    return {
-      status: {
-        code: StatusCodes.OK,
-      },
-      body: 'User Activated',
-      redirect: true,
-    };
-  } catch (error) {
-    return new BadRequest({
-      message: error instanceof Error ? error?.message : undefined,
-    });
-  }
+type RequestParams = {
+  link: string;
+};
+type ResponseBody = Awaited<ReturnType<typeof handler>>;
+
+const getResponse = async (
+  request: HandlerEvent<any, any, RequestParams, any>,
+): Promise<HandlerResponse<ResponseBody, any>> => {
+  const { link } = request.params;
+  const result = await handler(link);
+
+  return {
+    status: {
+      code: StatusCodes.OK,
+    },
+    body: result,
+    redirect: {
+      link: process.env.CLIENT_URL,
+    },
+  };
 };
 
-export default activateLinkHandler;
+export default getResponse;

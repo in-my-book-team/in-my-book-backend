@@ -3,8 +3,8 @@ import { StatusCodes } from '../constants/status-codes';
 
 type ExceptionData = {
   message?: string;
-  code: ExceptionCodes;
-  status: {
+  code?: ExceptionCodes;
+  status?: {
     code: StatusCodes;
   };
 };

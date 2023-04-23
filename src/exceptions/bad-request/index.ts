@@ -9,7 +9,7 @@ type BadRequestExceptionData = {
 export default class BadRequest extends Exception {
   constructor({ message }: BadRequestExceptionData = {}) {
     super({
-      message: message ?? 'Bad request exception',
+      message: message ?? 'Bad request',
       code: ExceptionCodes.BAD_REQUEST,
       status: { code: StatusCodes.BAD_REQUEST },
     });

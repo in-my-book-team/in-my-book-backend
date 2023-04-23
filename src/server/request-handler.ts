@@ -2,32 +2,54 @@ import type { Request, Response } from 'express';
 import Exception from '../exceptions';
 import { StatusCodes } from '../constants/status-codes';
 
-export type HandlerEvent = {
-  headers: Request['headers'];
-  query: Request['query'];
-  params: Request['params'];
-  body: string;
-  method: string;
-  path: string;
-  cookies: any;
+const cookieOptions = {
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+  httpOnly: true,
 };
 
-export type HandlerResponse =
+export type HandlerEvent<TBody, TQuery, TParams, TCookies> = {
+  headers: Request['headers'];
+  query: TQuery;
+  params: TParams;
+  body: TBody;
+  method: string;
+  path: string;
+  cookies: TCookies;
+};
+export type HandlerResponse<Body, Cookie> =
   | {
       status: {
         code: StatusCodes;
       };
-      body: any;
-      cookie?: { refreshToken: string };
-      redirect?: boolean;
+      body: Body;
+      cookie?: Cookie;
+      redirect?: {
+        link?: string;
+      };
     }
   | Exception;
 
 const handleRequest =
-  (handler: (request: HandlerEvent) => Promise<HandlerResponse>) =>
+  <
+    TRequestBody,
+    TRequestQuery,
+    TRequestParams,
+    TResponseBody,
+    TRequestCookie,
+    TResponseCookie,
+  >(
+    handler: (
+      request: HandlerEvent<
+        TRequestBody,
+        TRequestQuery,
+        TRequestParams,
+        TRequestCookie
+      >,
+    ) => Promise<HandlerResponse<TResponseBody, TResponseCookie>>,
+  ) =>
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const request: HandlerEvent = {
+      const request: HandlerEvent<any, any, any, any> = {
         headers: req.headers,
         query: req.query,
         params: req.params,
@@ -41,25 +63,30 @@ const handleRequest =
         ...request,
       });
 
-      if (!(response instanceof Exception)) {
-        if (response.cookie) {
-          res.cookie(
-            String(Object.getOwnPropertyNames(response.cookie)[0]),
-            response.cookie.refreshToken,
-            {
-              maxAge: 30 * 24 * 60 * 60 * 1000,
-              httpOnly: true,
-            },
-          );
-        }
-        if (response.redirect) {
-          res.redirect(String(process.env.CLIENT_URL));
-        }
-        res.status(response.status.code ?? StatusCodes.OK).send(response.body);
-      } else
+      if (response instanceof Exception) {
         res
           .status(response.status.code ?? StatusCodes.INTERNAL_SERVER_ERROR)
           .send(response.obj);
+
+        return;
+      }
+
+      if (response.cookie) {
+        Object.keys(response.cookie)
+          .reduce(
+            (acc) =>
+              // acc.push([key, response.cookie[key]]);
+              acc,
+            [] as [string, string][],
+          )
+          .map((cookies) => res.cookie(...cookies, cookieOptions));
+      }
+
+      if (response.redirect && response.redirect.link) {
+        res.redirect(response.redirect.link);
+      }
+
+      res.status(response.status.code ?? StatusCodes.OK).send(response.body);
     } catch (error) {
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)

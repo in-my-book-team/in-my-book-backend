@@ -3,29 +3,28 @@ import type {
   HandlerResponse,
 } from '../../server/request-handler';
 import { StatusCodes } from '../../constants/status-codes';
-import UserService from '../../services/user';
-import BadRequest from '../../exceptions/bad-request';
+import handler from './handler';
 
-const logoutHandler = async (
-  request: HandlerEvent,
-): Promise<HandlerResponse> => {
-  try {
-    const { refreshToken } = request.cookies;
-    await UserService.logout(refreshToken);
-    return {
-      status: {
-        code: StatusCodes.OK,
-      },
-      body: 'User logout',
-      cookie: {
-        refreshToken: '',
-      },
-    };
-  } catch (error) {
-    return new BadRequest({
-      message: error instanceof Error ? error?.message : undefined,
-    });
-  }
+type RequestCookies = {
+  refreshToken: string;
+};
+type ResponseCookie = Partial<RequestCookies>;
+
+const getResponse = async (
+  request: HandlerEvent<any, any, any, RequestCookies>,
+): Promise<HandlerResponse<string, ResponseCookie>> => {
+  const { refreshToken } = request.cookies;
+  await handler(refreshToken);
+
+  return {
+    status: {
+      code: StatusCodes.OK,
+    },
+    body: 'User logout',
+    cookie: {
+      refreshToken: undefined,
+    },
+  };
 };
 
-export default logoutHandler;
+export default getResponse;

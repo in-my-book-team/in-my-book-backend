@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { mailHTML } from '../../models/mailHTML';
+import { getMailContent } from '../../constants/mail-content';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -23,9 +23,9 @@ class Mail {
     await this.transporter.sendMail({
       from: process.env.SMTP_USER,
       to,
-      subject: `Activating account on ${process.env.API_URL}`,
+      subject: `Registration on ${process.env.API_URL}`,
       text: '',
-      html: mailHTML(link),
+      html: getMailContent(link),
     });
   }
 }

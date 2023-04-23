@@ -1,21 +1,20 @@
-import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
-import Mail from '../mail';
-import Tokens from '../token';
-import UserDB from '../db/entities/User';
-import UserModel from '../../models/user';
+import MailService from '../mail';
+import TokenService from '../token';
+import UserEntity from '../db/entities/User';
 import { dbInstanse } from '../db/utils/getConnection';
 import BadRequest from '../../exceptions/bad-request';
+import { comparePasswords, hashPassword } from '../../utils/password';
+import Exception from '../../exceptions';
+import getUser, { User as UserType } from '../../models/user';
+import type { Tokens } from '../../models/token';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 type Result = {
-  tokens: {
-    access: string;
-    refresh: string;
-  };
-  user: UserModel;
+  tokens: Tokens;
+  user: UserType;
 };
 
 class User {
@@ -27,45 +26,45 @@ class User {
     const candidate = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(UserDB, 'user')
+      .from(UserEntity, 'user')
       .where('user.email = :email', { email })
       .getOne();
-
     if (candidate) {
       throw new BadRequest({
         message: `A user with '${email}' email address already exists`,
       });
     }
-    const hashPassword = await bcrypt.hash(password, 3);
+
+    const hashedPassword = await hashPassword(password);
     const activationLink = uuidv4();
 
     const user = await dbInstanse
       .createQueryBuilder()
       .insert()
-      .into(User)
+      .into(UserEntity)
       .values([
         {
           nickname,
           email,
-          password: hashPassword,
+          password: hashedPassword,
           activationLink,
         },
       ])
       .returning(['id', 'nickname', 'email', 'isActivated'])
       .execute();
 
-    const userModel = new UserModel(user.raw[0]);
+    const userModel = getUser(user.raw[0]);
 
-    await new Mail().sendActivationMail(
+    await new MailService().sendActivationMail(
       email,
       `${process.env.API_URL}/api/activate/${activationLink}`,
     );
 
-    const tokens = await Tokens.generate({ ...userModel });
-    await Tokens.save(userModel.id, tokens.tokens.refresh);
+    const tokens = await TokenService.generate(userModel);
+    await TokenService.save(userModel.id, tokens.refresh);
 
     return {
-      ...tokens,
+      tokens,
       user: userModel,
     };
   };
@@ -74,57 +73,61 @@ class User {
     const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(UserDB, 'user')
+      .from(UserEntity, 'user')
       .where('user.activationLink = :activationLink', { activationLink })
       .getOne();
-
     if (!user) {
       throw new BadRequest({
-        message: 'Incorrect activate link',
+        message: 'Incorrect activation link',
       });
     }
 
-    await dbInstanse
-      .createQueryBuilder()
-      .update(User)
-      .set({
-        isActivated: true,
-      })
-      .where('id = :id', { id: user.id })
-      .execute();
+    try {
+      await dbInstanse
+        .createQueryBuilder()
+        .update(UserEntity)
+        .set({ isActivated: true })
+        .where('id = :id', { id: user.id })
+        .execute();
+    } catch (error) {
+      throw new Exception({
+        message: 'Failed to activate user',
+      });
+    }
   };
 
   static login = async (email: string, password: string): Promise<Result> => {
     const user = await dbInstanse
       .createQueryBuilder()
       .select('user')
-      .from(UserDB, 'user')
+      .from(UserEntity, 'user')
       .where('user.email = :email', { email })
       .getOne();
-
     if (!user) {
       throw new BadRequest({
         message: `A user with '${email}' email address not found`,
       });
     }
-    const isPassEquals = await bcrypt.compare(password, user.password);
-    if (!isPassEquals) {
+
+    const isPasswordsEquals = await comparePasswords(password, user.password);
+    if (!isPasswordsEquals) {
       throw new BadRequest({
         message: 'Incorrect password',
       });
     }
-    const userModel = new UserModel(user);
-    const tokens = await Tokens.generate({ ...userModel });
-    await Tokens.save(userModel.id, tokens.tokens.refresh);
+
+    const userModel = getUser(user);
+    const tokens = await TokenService.generate(userModel);
+    await TokenService.save(userModel.id, tokens.refresh);
 
     return {
-      ...tokens,
+      tokens,
       user: userModel,
     };
   };
 
   static logout = async (refreshToken: string): Promise<void> => {
-    await Tokens.remove(refreshToken);
+    await TokenService.remove(refreshToken);
   };
 }
 
