@@ -1,0 +1,1 @@
+// get isFavorite from DB
