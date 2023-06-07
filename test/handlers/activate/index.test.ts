@@ -4,7 +4,7 @@ import { fixtures } from './fixtures';
 import BadRequest from '../../../src/exceptions/bad-request';
 import { ExceptionCodes } from '../../../src/exceptions/exception-codes';
 
-describe('Handler - activate - HTTP', () => {
+describe('Handler - activate', () => {
   beforeEach(() => {
     dataSourceMethodsMocks.getOne.mockImplementation(() => ({
       ...fixtures.user,
