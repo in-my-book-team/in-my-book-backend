@@ -26,7 +26,6 @@ class User {
     const candidate = await dbInstanse
       .getRepository(UserEntity)
       .findOne({ where: { email } });
-    console.log(candidate);
     if (candidate) {
       throw new BadRequest({
         message: `A user with '${email}' email address already exists`,
@@ -88,7 +87,6 @@ class User {
         .where('id = :id', { id: user.id })
         .execute();
     } catch (error) {
-      console.log(error);
       throw new Exception({
         message: 'Failed to activate user',
       });
