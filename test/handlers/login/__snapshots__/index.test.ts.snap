@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Handler - registration - HTTP should return response: handler result 1`] = `
+exports[`Handler - login - HTTP should return response 1`] = `
 {
   "tokens": {
     "access": "token",

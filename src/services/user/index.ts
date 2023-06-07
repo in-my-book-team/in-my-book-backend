@@ -88,6 +88,7 @@ class User {
         .where('id = :id', { id: user.id })
         .execute();
     } catch (error) {
+      console.log(error);
       throw new Exception({
         message: 'Failed to activate user',
       });

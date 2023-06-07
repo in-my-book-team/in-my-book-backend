@@ -4,7 +4,7 @@ import { fixtures } from './fixtures';
 import BadRequest from '../../../src/exceptions/bad-request';
 import { ExceptionCodes } from '../../../src/exceptions/exception-codes';
 
-describe('Handler - registration - HTTP', () => {
+describe('Handler - logout - HTTP', () => {
   const compareMock = jest.spyOn(bcrypt, 'compare');
 
   beforeEach(() => {

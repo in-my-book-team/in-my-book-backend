@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Handler - activate - HTTP should return response 1`] = `
+{
+  "message": "User activated",
+}
+`;
