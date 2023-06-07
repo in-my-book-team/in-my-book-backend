@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Handler - registration - HTTP should return response: handler result 1`] = `
+{
+  "tokens": {
+    "access": "token",
+    "refresh": "token",
+  },
+  "user": {
+    "email": "test@test.com",
+    "id": "test-id",
+    "isActivated": true,
+    "nickname": "TestNickname",
+  },
+}
+`;

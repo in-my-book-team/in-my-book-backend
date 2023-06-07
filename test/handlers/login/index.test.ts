@@ -1,19 +1,19 @@
-import nodemailer from 'nodemailer';
-import handler from '../../../src/handlers/registration/handler';
+import bcrypt from 'bcrypt';
+import handler from '../../../src/handlers/login/handler';
 import { dataSourceMethodsMocks } from '../../helpers/typeorm';
 import { fixtures } from './fixtures';
 import BadRequest from '../../../src/exceptions/bad-request';
 import { ExceptionCodes } from '../../../src/exceptions/exception-codes';
 
 describe('Handler - registration - HTTP', () => {
-  const sendMailMock = jest.spyOn(nodemailer.createTransport(), 'sendMail');
+  const compareMock = jest.spyOn(bcrypt, 'compare');
 
   beforeEach(() => {
-    dataSourceMethodsMocks.execute.mockImplementation(() => ({
-      raw: [fixtures.user],
+    dataSourceMethodsMocks.getOne.mockImplementation(() => ({
+      ...fixtures.user,
     }));
 
-    sendMailMock.mockImplementation(jest.fn());
+    compareMock.mockImplementation(jest.fn(() => true));
   });
 
   afterEach(async () => {
@@ -25,13 +25,9 @@ describe('Handler - registration - HTTP', () => {
   });
 
   it('should return response', async () => {
-    const result = await handler({
-      ...fixtures.user,
-      password: fixtures.password,
-    });
+    const result = await handler(fixtures);
 
     expect(result).toMatchSnapshot('handler result');
-    expect(sendMailMock.mock.calls).toMatchSnapshot('send mail calls');
   });
 
   it(`should throw ${ExceptionCodes.BAD_REQUEST} exception if no arguments provided`, async () => {

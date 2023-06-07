@@ -24,11 +24,9 @@ class User {
     password: string,
   ): Promise<Result> => {
     const candidate = await dbInstanse
-      .createQueryBuilder()
-      .select('user')
-      .from(UserEntity, 'user')
-      .where('user.email = :email', { email })
-      .getOne();
+      .getRepository(UserEntity)
+      .findOne({ where: { email } });
+    console.log(candidate);
     if (candidate) {
       throw new BadRequest({
         message: `A user with '${email}' email address already exists`,
@@ -57,7 +55,7 @@ class User {
 
     await new MailService().sendActivationMail(
       email,
-      `${process.env.API_URL}/api/activate/${activationLink}`,
+      `${process.env.API_URL}/activate/${activationLink}`,
     );
 
     const tokens = await TokenService.generate(userModel);
@@ -109,8 +107,8 @@ class User {
       });
     }
 
-    const isPasswordsEquals = await comparePasswords(password, user.password);
-    if (!isPasswordsEquals) {
+    const isPasswordsEqual = await comparePasswords(password, user.password);
+    if (!isPasswordsEqual) {
       throw new BadRequest({
         message: 'Incorrect password',
       });
@@ -127,7 +125,13 @@ class User {
   };
 
   static logout = async (refreshToken: string): Promise<void> => {
-    await TokenService.remove(refreshToken);
+    try {
+      await TokenService.remove(refreshToken);
+    } catch (error) {
+      throw new Exception({
+        message: 'Failed to logout user',
+      });
+    }
   };
 }
 

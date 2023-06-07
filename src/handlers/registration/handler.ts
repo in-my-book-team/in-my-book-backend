@@ -21,7 +21,7 @@ const handler = async ({
     }
 
     const user = await UserService.registration(nickname, email, password);
-    console.log('user', JSON.stringify(user));
+
     return user;
   } catch (error) {
     throw new BadRequest({
