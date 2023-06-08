@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Handler - login - HTTP should return response 1`] = `
+{
+  "tokens": {
+    "access": "token",
+    "refresh": "token",
+  },
+  "user": {
+    "email": "test@test.com",
+    "id": "test-id",
+    "isActivated": true,
+    "nickname": "TestNickname",
+  },
+}
+`;

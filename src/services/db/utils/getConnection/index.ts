@@ -1,9 +1,10 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
+import getConfig from './config';
 
-const getConnection = (config: DataSourceOptions): void => {
+export const dbInstanse = new DataSource(getConfig());
+
+const getConnection = (): void => {
   try {
-    const dbInstanse = /* cache.DB ?? */ new DataSource(config); // TODO: implement cache
-
     dbInstanse
       .initialize()
       .then(() => {

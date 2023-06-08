@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Handler - registration - HTTP should return response: handler result 1`] = `
+{
+  "tokens": {
+    "access": "token",
+    "refresh": "token",
+  },
+  "user": {
+    "email": "test@test.com",
+    "id": "test-id",
+    "isActivated": true,
+    "nickname": "TestNickname",
+  },
+}
+`;
+
+exports[`Handler - registration - HTTP should return response: send mail calls 1`] = `
+[
+  [
+    {
+      "from": "test.in.my.book@outlook.com",
+      "html": "
+<div>
+    <h1>To activate follow the link</h1>
+    <a href="test-api-url/activate/test-id-1">test-api-url/activate/test-id-1</a>
+</div>",
+      "subject": "Registration on test-api-url",
+      "text": "",
+      "to": "test@test.com",
+    },
+  ],
+]
+`;

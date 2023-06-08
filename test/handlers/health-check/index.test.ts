@@ -1,7 +1,6 @@
 import handler from '../../../src/handlers/health-check';
-import { handlerName } from '../../../src/handlers/health-check/handler';
 
-describe(`Handler - ${handlerName} - HTTP`, () => {
+describe('Handler - health-check', () => {
   it('should return response', async () => {
     const result = await handler();
 

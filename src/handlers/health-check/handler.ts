@@ -1,5 +1,3 @@
-export const handlerName = 'health-check';
+const handler = async (): Promise<string> => 'ok';
 
-const getHandler = async (): Promise<string> => 'ok';
-
-export default getHandler;
+export default handler;

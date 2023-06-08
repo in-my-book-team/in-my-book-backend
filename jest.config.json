@@ -1,17 +1,14 @@
 {
-  "testPathIgnorePatterns": [
-    "/node_modules/"
-  ],
+  "testPathIgnorePatterns": ["/node_modules/"],
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "roots": [
-    "test"
-  ],
+  "roots": ["test"],
   "globals": {
     "ts-jest": {
       "tsconfig": "test/tsconfig.json"
     }
   },
+  "setupFilesAfterEnv": ["<rootDir>/test/helpers/setupTests.ts"],
   "verbose": true,
   "testTimeout": 20000
 }

@@ -2,14 +2,14 @@ import Exception from '..';
 import { ExceptionCodes } from '../exception-codes';
 import { StatusCodes } from '../../constants/status-codes';
 
-type ExternalExceptionData = {
+type BadRequestExceptionData = {
   message?: string;
 };
 
-export default class External extends Exception {
-  constructor({ message }: ExternalExceptionData = {}) {
+export default class BadRequest extends Exception {
+  constructor({ message }: BadRequestExceptionData = {}) {
     super({
-      message: message ?? 'External exception',
+      message: message ?? 'Bad request',
       code: ExceptionCodes.BAD_REQUEST,
       status: { code: StatusCodes.BAD_REQUEST },
     });

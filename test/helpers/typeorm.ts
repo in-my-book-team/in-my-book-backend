@@ -1,0 +1,20 @@
+export const dataSourceMethodsMocks = {
+  createQueryBuilder: jest.fn().mockReturnThis(),
+  getRepository: jest.fn().mockReturnThis(),
+  insert: jest.fn().mockReturnThis(),
+  into: jest.fn().mockReturnThis(),
+  values: jest.fn().mockReturnThis(),
+  returning: jest.fn().mockReturnThis(),
+  select: jest.fn().mockReturnThis(),
+  from: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  getOne: jest.fn().mockReturnThis(),
+  delete: jest.fn().mockReturnThis(),
+  set: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  findOne: jest.fn(),
+  execute: jest.fn(),
+  manager: {
+    save: jest.fn().mockReturnThis(),
+  },
+};
